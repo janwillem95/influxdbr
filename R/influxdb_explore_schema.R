@@ -169,3 +169,36 @@ show_tag_values <- function(con, db, from=NULL, key) {
   return(result)
 
 }
+#' Show field keys
+#'
+#' This function is a convenient wrapper for showing all unique field keys
+#' associated with each measurement by calling
+#' \code{influx_query} with the corresponding query.
+#' The query can include a measurement (\code{from}) and tag field value (\code{where})
+#' conditions, so only certain fields keys are shown.
+#'
+#' @title show_field_keys
+#' @param con An influx_connection object (s. \code{influx_connection}).
+#' @param db Sets the target database for the query.
+#' @param from Query a specific measurement.
+#'
+#' @return A list of character vectors containing field keys.
+#' @export
+#' @author Jan-Willem den Dunnen (\email{jan-willemdendunnen@hotmail.com})
+#' @seealso \code{\link[influxdbr]{influx_connection}}
+#' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
+show_field_keys <- function(con, db, from=NULL) {
+
+  query <- ifelse(is.null(from),
+                  "SHOW FIELD KEYS",
+                  paste("SHOW FIELD KEYS FROM", from))
+
+  result <- influx_query(con = con,
+                         db = db,
+                         query = query,
+                         return_xts = F)
+
+  result <- lapply(Reduce(c, result), function(x) as.character(t(x)))
+
+  return(result)
+}
